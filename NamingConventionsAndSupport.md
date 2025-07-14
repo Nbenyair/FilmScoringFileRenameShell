@@ -27,7 +27,7 @@
   - `strings`, `str` → STR section
   - `percussion`, `prc`, `perc` → PRC section
   - `mixbus`, `mix bus` → MIX section
-- **Effect tracks**: If instrument name contains effect keywords (`delay`, `dly`, `reverb`, `rev`, `verb`, `chorus`, `cho`, `flanger`, `flg`, `phaser`, `phs`, `distortion`, `dst`, `overdrive`, `od`, `compressor`, `cmp`, `limiter`, `lim`, `eq`, `equalizer`, `filter`, `flt`, `wah`, `tremolo`, `trm`, `vibrato`, `vib`, `autopan`, `pan`, `fx`, `fxs`, `fx1`-`fx5`), section is set to `§` and the original instrument name is preserved
+- **Effect tracks**: If instrument name contains effect keywords (`delay`, `reverb`, `chorus`, `eq`, `fx`, etc.), section is set to `§` and the original instrument name is preserved
 - **Synth instruments**: Any instrument name containing `synth` is assigned section `SYN` and keeps the original instrument name
 - **Click tracks**: `click` or `clk` are handled specially - renamed to `CueID_CLK` with no section prefix
 - **Case insensitive**: All matching is case-insensitive
@@ -37,7 +37,7 @@
 - Renamed as: `CueID_SECTION_ABBR[Suffix][_TBR|_TBL].ext`
   - For **effect tracks**: `CueID_§_OriginalInstrumentName[_TBR|_TBL].ext`
   - For **synth instruments**: `CueID_SYN_OriginalInstrumentName[_TBR|_TBL].ext`
-  - For **click tracks**: `CueID_CLK[_TBR|_TBL].ext` (no section prefix)
+  - For **click tracks**: `CueID_CLK.ext` (no section prefix)
   - For **unmapped instruments**: `CueID_RenameManually!_OriginalInstrumentName[_TBR|_TBL].ext`
 - If a filename conflict occurs, the original instrument name is appended in parentheses: `(OriginalInstrument)`
 - For multiple conflicts, a counter is added: `(OriginalInstrument_2)`, `(OriginalInstrument_3)`, etc.
@@ -50,14 +50,14 @@
 ## Examples
 
 ### Standard Instrument Mapping
-- `2m04_violin.wav` → `2m04_STR_vln.wav`
+- `2m04_Violin 1.wav` → `2m04_STR_vln1.wav`
+- `4m05_violin2.wav` → `4m05_STR_vln2.wav`
 - `1m12_trumpet_TBR.aiff` → `1m12_BRS_tpt_TBR.aiff`
 - `3m01_flute.mp3` → `3m01_WW_fl.mp3`
-- `4m05_timpani.wav` → `4m05_PRC_timp.wav`
 
 ### Section Keywords
 - `2m04_strings.wav` → `2m04_STR_str.wav`
-- `1m12_brass section.aiff` → `1m12_BRS_brs.aiff`
+- `1m12_brass.aiff` → `1m12_BRS_brs.aiff`
 - `3m01_woodwinds.mp3` → `3m01_WW_ww.mp3`
 
 ### Special Cases
