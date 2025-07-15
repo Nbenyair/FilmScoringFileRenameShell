@@ -9,7 +9,9 @@ This document provides the complete technical specification for the Film Scoring
   
   `CueID_InstrumentName[_TBR|_TBL].ext`
   
-  - `CueID`: Any string (e.g., 2m04)
+  - `CueID`: Any string following reel/measure format (e.g., 2m04, 12m15, 3m1)
+    - Supports 1-2 digit reel numbers and 1-2 digit measure numbers
+    - Examples: `1m2`, `2m04`, `12m3`, `25m42`
   - `InstrumentName`: Instrument or section name (see below)
   - `_TBR` or `_TBL` (optional): Suffix for Take B Right/Left (case-insensitive)
   - `.ext`: Supported extensions are `.wav`, `.aiff`, `.mp3` (case-insensitive)
@@ -19,6 +21,7 @@ This document provides the complete technical specification for the Film Scoring
 - **Exact format required**: Filenames must contain exactly one underscore (excluding `_TBR`/`_TBL`)
 - **Invalid formats skipped**: Files not matching the expected pattern are ignored
 - **Duplicate protection**: Uses `mv -n` to prevent overwriting existing files
+- **Safe processing**: When used with Automator workflow, creates copies before renaming
 
 ### Instrument and Section Mapping
 - **Greedy prefix matching**: Longest matching prefix wins (e.g., `vln`, `violin`, `fl`, `flute`, etc.)
@@ -45,7 +48,7 @@ This document provides the complete technical specification for the Film Scoring
 - For multiple conflicts, a counter is added: `(OriginalInstrument_2)`, `(OriginalInstrument_3)`, etc.
 
 ### Version 1.1 Features
-- **Automatic Log Generation**: Creates a timestamped log file in the same directory as your audio files
+- **Automatic Log Generation**: Creates a timestamped log file in the renamed folder
 - **Rename Tracking**: Log shows original filename → new filename for each processed file
 - **Complete Audit Trail**: Includes start/completion timestamps and log file location
 
