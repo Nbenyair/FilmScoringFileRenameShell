@@ -1,4 +1,6 @@
-# Film Scoring File Rename Shell Script (Version 1.1)
+# Naming Conventions - Technical Reference
+
+This document provides the complete technical specification for the Film Scoring File Rename Shell Script's naming conventions and instrument mappings.
 
 ## Supported Naming Conventions
 
