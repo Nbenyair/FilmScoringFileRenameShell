@@ -9,8 +9,8 @@ This document provides the complete technical specification for the Film Scoring
   
   `CueID_InstrumentName[_TBR|_TBL].ext`
   
-  - `CueID`: Any string following reel/measure format (e.g., 2m04, 12m15, 3m1)
-    - Supports 1-2 digit reel numbers and 1-2 digit measure numbers
+  - `CueID`: Any string following reel/cue format (e.g., 2m04, 12m15, 3m1)
+    - Supports 1-2 digit reel numbers and 1-2 digit cue numbers
     - Examples: `1m2`, `2m04`, `12m3`, `25m42`
   - `InstrumentName`: Instrument or section name (see below)
   - `_TBR` or `_TBL` (optional): Suffix for Take B Right/Left (case-insensitive)
@@ -79,7 +79,7 @@ This document provides the complete technical specification for the Film Scoring
 
 ## Bug Reports & Contact
 - For bug fixes, feature requests, or questions, please reach out via GitHub issues or email:
-  - GitHub: https://github.com/Nbenyair/FilmScoringFileRenameShell.git
-  - Email: nettanettanetta+software@gmail.com
+- **Issues**: [GitHub Issues](https://github.com/Nbenyair/FilmScoringFileRenameShell/issues)
+- **Email**: nettanettanetta+software@gmail.com
 
 Please include example filenames and a description of the issue when reporting bugs.
