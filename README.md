@@ -21,29 +21,17 @@ Transforms audio filenames as they get exported from Cubase™ into clean, profe
 
 ### Prerequisites
 - **macOS** (tested on macOS 15 - Sequoia)
-- **Automator.app** (pre-installed on macOS)
 - Basic familiarity with Finder
 
-### Automator Integration Setup
-1. Download `FilmScoringFileRenameShellV1.1` from this repository
-2. Open macOS **Automator.app**
-3. Create a new **Quick Action**
-4. Set workflow to receive **"files or folders"** in **Finder**
-5. Add the following actions in order:
-   - **"New Folder"** action
-     - Name: `Auto Film Score Rename`
-     - Where: `Same Folder as Input`
-   - **"Get Folder Contents"** action
-     - Check "Repeat for each subfolder found"
-   - **"Run Shell Script"** action
-     - Shell: `/bin/bash`
-     - Pass input: `as arguments`
-     - Copy and paste the entire script content into the text area
-6. Save as **"FilmScoringRename"** (or your preferred name)
+### Simple Installation Process
+1. **Double-click** the `FilmScoringRename.workflow` file
+2. **Click "Install"** when prompted
+3. **Click "Install" again** when asked if you're sure you want to install
+4. **That's it!** The Quick Action is now available in Finder
 
-**Usage**: Select audio files in Finder → Right-click → Quick Actions → FilmScoringRename
+> **📝 Note**: The `FilmScoringRename.workflow` file will be moved to your system during installation and will no longer be visible in this folder.
 
-> **🛡️ Safety Feature**: This workflow creates a copy of your files in a new folder before renaming, so your original files remain completely safe!
+<div style="page-break-before: always;"></div>
 
 ## 📋 How It Works
 
@@ -54,6 +42,8 @@ Transforms audio filenames as they get exported from Cubase™ into clean, profe
 5. **Automatic log created** showing all changes with timestamps
 6. **Completion notification** appears when finished
 7. **Original files remain completely safe** in their original location
+
+> **🛡️ Safety Feature**: This workflow creates a copy of your files in a new folder before renaming, so your original files remain completely safe!
 
 ### What Gets Logged
 - Timestamped log file created in the new renamed folder
