@@ -1,6 +1,6 @@
 #!/bin/bash
 # Film Scoring File Rename Shell Script
-known_instrs=(click clk vln violin vla viola vc cello cb contrabass fl flute pic ob oboe eh cl clarinet bcl bassclarinet bsn bassoon fh frenchhorn horns tpt trumpet tbn trombone btbn basstrombone tb tuba cimbasso cim timp timpani sn snare cym cymbal bd bassdrum gc grancasa xyl xylophone mrb marimba glk glockenspiel glock vib vibraphone tbls tubularbells hprc handpercussion sprc specialtypercussion pno piano clst celeste epno electricpiano org organ hrp harp svx solovoice ch choir pad synthpad arp arpeggio egt electricguitar agt acousticguitar kit drumkit kd kickdrum hh hihat tom toms loop drumloop ebs electricbass sbs synthbass ub uprightbass final reference mixminus rough riser sfx mixbus "mix bus")
+known_instrs=(click clk vl vln violin vla viola vc cello cb contrabass fl flute pic ob oboe eh cl clarinet bcl bassclarinet bsn bassoon fh frenchhorn horns tpt trumpet tbn trombone btbn basstrombone tb tuba cimbasso cim timp timpani sn snare cym cymbal bd bassdrum gc grancasa xyl xylophone mrb marimba glk glockenspiel glock vib vibraphone tbls tubularbells hprc handpercussion sprc specialtypercussion pno piano clst celeste epno electricpiano org organ hrp harp svx solovoice ch choir pad synthpad arp arpeggio egt electricguitar agt acousticguitar kit drumkit kd kickdrum hh hihat tom toms loop drumloop ebs electricbass sbs synthbass ub uprightbass final reference mixminus rough riser sfx mixbus "mix bus")
 
 
 # Section mapping (abbreviation) with pattern matching
@@ -19,7 +19,7 @@ section_map() {
     # Keyboards & Harp
     pno*|piano*|clst*|celeste*|epno*|electricpiano*|org*|organ*|hrp*|harp*) echo "KBHRP" ;;
     # Strings
-    vln*|violin*|vla*|viola*|vc*|cello*|cb*|contrabass*|ub*|uprightbass*) echo "STR" ;;
+    vl*|vln*|violin*|vla*|viola*|vc*|cello*|cb*|contrabass*|ub*|uprightbass*) echo "STR" ;;
     # Voices
     svx*|solovoice*|ch*|choir*) echo "VOX" ;;
     # Synth
@@ -83,7 +83,7 @@ instrument_abbrev() {
     org*|organ*) echo "org" ;;
     hrp*|harp*) echo "hrp" ;;
     # Strings
-    vln*|violin*) echo "vln" ;;
+    vl*|vln*|violin*) echo "vln" ;;
     vla*|viola*) echo "vla" ;;
     vc*|cello*) echo "vc" ;;
     cb*|contrabass*|ub*|uprightbass*|upright\ bass*) echo "cb" ;;
