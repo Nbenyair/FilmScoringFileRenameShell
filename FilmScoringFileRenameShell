@@ -1,6 +1,6 @@
 #!/bin/bash
 # Film Scoring File Rename Shell Script
-known_instrs=(click clk vl vln violin vla viola vc cello cb contrabass fl flute pic ob oboe eh cl clarinet bcl bassclarinet bsn bassoon fh frenchhorn horns tpt trumpet tbn trombone btbn basstrombone tb tuba cimbasso cim timp timpani sn snare cym cymbal bd bassdrum gc grancasa xyl xylophone mrb marimba glk glockenspiel glock vib vibraphone tbls tubularbells hprc handpercussion sprc specialtypercussion pno piano clst celeste epno electricpiano org organ hrp harp svx solovoice ch choir pad synthpad arp arpeggio egt electricguitar agt acousticguitar kit drumkit kd kickdrum hh hihat tom toms loop drumloop ebs electricbass sbs synthbass ub uprightbass final reference mixminus rough riser sfx mixbus "mix bus")
+known_instrs=(click clk vl vln violin vla viola vc cello cb contrabass fl flute pic ob oboe eh cl clarinet bcl bassclarinet bsn bassoon fh frenchhorn horns tpt trumpet tbn trombone btbn basstrombone tb tuba cimbasso cim timp timpani sn snare cym cymbal bd bassdrum gc grancasa xyl xylophone mrb marimba glk glockenspiel glock vib vibraphone tbls tubularbells hprc handpercussion sprc specialtypercussion pno piano clst celeste epno electricpiano org organ hrp harp svx solovoice ch choir pad synthpad synth arp arpeggio guitar egt electricguitar agt acousticguitar kit drumkit kd kickdrum hh hihat tom toms bass ebs electricbass sbs synthbass ub uprightbass final reference mixminus rough riser sfx mixbus "mix bus")
 
 
 # Section mapping (abbreviation) with pattern matching
@@ -23,13 +23,13 @@ section_map() {
     # Voices
     svx*|solovoice*|ch*|choir*) echo "VOX" ;;
     # Synth
-    syn*|synth*|pad*|synthpad*|arp*|arpeggio*) echo "SYN" ;;
+    synth*|pad*|synthpad*|arp*|arpeggio*) echo "SYN" ;;
     # Guitar
-    egt*|electricguitar*|agt*|acousticguitar*) echo "GUIT" ;;
+    guitar*|egt*|electricguitar*|agt*|acousticguitar*) echo "GUIT" ;;
     # Drums
-    kit*|drumkit*|kd*|kickdrum*|hh*|hihat*|tom*|toms*|loop*|drumloop*) echo "DRUM" ;;
+    kit*|drumkit*|kd*|kickdrum*|hh*|hihat*|tom*|toms*) echo "DRUM" ;;
     # Bass (non-orchestral)
-    ebs*|electricbass*|sbs*|synthbass*|cb/ub*|contrabass*|uprightbass*) echo "BASS" ;;
+    bass*|ebs*|electricbass*|sbs*|synthbass*|cb/ub*|contrabass*|uprightbass*) echo "BASS" ;;
     # Mixes
     final*|finalmix*|reference*|referencemix*|mixminus*|mixminus*|rough*|roughmix*|mixbus*|mix\ bus*) echo "MIX" ;;
     # SFX
@@ -91,10 +91,8 @@ instrument_abbrev() {
     # Voices
     svx*|solovoice*|voice*|vocal*) echo "svx" ;;
     ch*|choir*) echo "ch" ;;
-    # Synth
-    syn*|synth*|pad*|synthpad*|synth\ pad*) echo "pad" ;;
-    arp*|arpeggio*) echo "arp" ;;
     # Guitar
+    guitar*) echo "guit" ;;
     egt*|electricguitar*|electric\ guitar*) echo "egt" ;;
     agt*|acousticguitar*|acoustic\ guitar*) echo "agt" ;;
     # Drums
@@ -102,8 +100,8 @@ instrument_abbrev() {
     kd*|kickdrum*|kick\ drum*) echo "kd" ;;
     hh*|hihat*|hi\ hat*) echo "hh" ;;
     tom*|toms*|tom\ tom*) echo "tom" ;;
-    loop*|drumloop*|drum\ loop*) echo "loop" ;;
     # Bass (non-orchestral)
+    bass*) echo "bass" ;;
     ebs*|electricbass*|electric\ bass*) echo "ebs" ;;
     sbs*|synthbass*|synth\ bass*) echo "sbs" ;;
     # SFX
@@ -165,15 +163,141 @@ for f in "$@"; do
   instrument_lc=$(echo "$instrument" | tr '[:upper:]' '[:lower:]' | sed 's/[^a-z0-9 ]//g' | sed 's/  */ /g' | sed 's/^ *//;s/ *$//')
   instrument_lc_nospace=$(echo "$instrument_lc" | tr -d ' ')
 
+  # Special handling for loops
+  if [[ "$instrument_lc" =~ loop ]]; then
+    # Extract the main instrument (everything before "loop")
+    main_part=$(echo "$instrument_lc" | sed 's/loop.*$//' | sed 's/  */ /g' | sed 's/^ *//;s/ *$//')
+    # Extract any suffix after "loop" (like numbers) and remove spaces
+    loop_suffix=$(echo "$instrument_lc" | sed 's/.*loop//' | sed 's/  */ /g' | sed 's/^ *//;s/ *$//' | tr -d ' ')
+    
+    if [[ -n "$main_part" ]]; then
+      # Try to match the main instrument first
+      main_matched=""
+      main_matched_len=0
+      main_part_nospace=$(echo "$main_part" | tr -d ' ')
+      
+      for prefix in "${known_instrs[@]}"; do
+        prefix_nospace=$(echo "$prefix" | tr -d ' ')
+        prefix_len=${#prefix_nospace}
+        if [[ $prefix_len -eq 0 ]]; then
+          continue
+        fi
+        if [[ "${main_part_nospace:0:prefix_len}" == "$prefix_nospace" ]]; then
+          if (( prefix_len > main_matched_len )); then
+            main_matched="$prefix"
+            main_matched_len=$prefix_len
+          fi
+        fi
+      done
+      
+      if [[ -n "$main_matched" ]]; then
+        section=$(section_map "$main_matched")
+        abbr=$(instrument_abbrev "$main_matched")
+        # Clean up the abbreviation - remove "loop" and "drum" since we're already indicating it's a loop
+        abbr_cleaned=$(echo "$abbr" | sed 's/loop//g; s/drum//g')
+        # If nothing left after cleaning, use the original abbreviation
+        if [[ -z "$abbr_cleaned" ]]; then
+          abbr_cleaned="$abbr"
+        fi
+        base_newname="${cueID}_${section}_${abbr_cleaned}loop${loop_suffix}${tbr_tbl}"
+      else
+        # Check for section keywords in the main part
+        if [[ "$main_part" =~ (.*)(brass|brs)(.*) ]]; then
+          section="BRS"
+          # Remove redundant "brass" and "brs" words since we're already in BRS section
+          cleaned_instr=$(echo "$main_part" | sed 's/brass//g; s/brs//g' | tr -d ' ')
+          # If nothing left after cleaning, use generic "brs"
+          if [[ -z "$cleaned_instr" ]]; then
+            cleaned_instr="brs"
+          fi
+          base_newname="${cueID}_${section}_${cleaned_instr}loop${loop_suffix}${tbr_tbl}"
+        elif [[ "$main_part" =~ (.*)(winds|ww|woodwinds)(.*) ]]; then
+          section="WW"
+          # Remove redundant "winds", "ww", and "woodwinds" words since we're already in WW section
+          cleaned_instr=$(echo "$main_part" | sed 's/woodwinds//g; s/winds//g; s/ww//g' | tr -d ' ')
+          # If nothing left after cleaning, use generic "ww"
+          if [[ -z "$cleaned_instr" ]]; then
+            cleaned_instr="ww"
+          fi
+          base_newname="${cueID}_${section}_${cleaned_instr}loop${loop_suffix}${tbr_tbl}"
+        elif [[ "$main_part" =~ (.*)(strings|str)(.*) ]]; then
+          section="STR"
+          # Remove redundant "strings" and "str" words since we're already in STR section
+          cleaned_instr=$(echo "$main_part" | sed 's/strings//g; s/str//g' | tr -d ' ')
+          # If nothing left after cleaning, use generic "str"
+          if [[ -z "$cleaned_instr" ]]; then
+            cleaned_instr="str"
+          fi
+          base_newname="${cueID}_${section}_${cleaned_instr}loop${loop_suffix}${tbr_tbl}"
+        elif [[ "$main_part" =~ (.*)(percussion|prc|perc)(.*) ]]; then
+          section="PRC"
+          # Remove redundant "percussion", "prc", and "perc" words since we're already in PRC section
+          cleaned_instr=$(echo "$main_part" | sed 's/percussion//g; s/perc//g; s/prc//g' | tr -d ' ')
+          # If nothing left after cleaning, use generic "prc"
+          if [[ -z "$cleaned_instr" ]]; then
+            cleaned_instr="prc"
+          fi
+          base_newname="${cueID}_${section}_${cleaned_instr}loop${loop_suffix}${tbr_tbl}"
+        elif [[ "$main_part" =~ (.*)(synth|syn)(.*) ]]; then
+          section="SYN"
+          # Remove redundant "synth" and "syn" words since we're already in SYN section
+          cleaned_instr=$(echo "$main_part" | sed 's/[Ss]ynth[[:space:]]*//g; s/[Ss]yn[[:space:]]*//g' | tr -d ' ')
+          # If nothing left after cleaning, use generic "syn"
+          if [[ -z "$cleaned_instr" ]]; then
+            cleaned_instr="syn"
+          fi
+          base_newname="${cueID}_${section}_${cleaned_instr}loop${loop_suffix}${tbr_tbl}"
+        elif [[ "$main_part" =~ (.*)(guitar|guit)(.*) ]]; then
+          section="GUIT"
+          # Remove redundant "guitar" and "guit" words since we're already in GUIT section
+          cleaned_instr=$(echo "$main_part" | sed 's/guitar//g; s/guit//g' | tr -d ' ')
+          # If nothing left after cleaning, use generic "guit"
+          if [[ -z "$cleaned_instr" ]]; then
+            cleaned_instr="guit"
+          fi
+          base_newname="${cueID}_${section}_${cleaned_instr}loop${loop_suffix}${tbr_tbl}"
+        elif [[ "$main_part" =~ (.*)(bass)(.*) ]]; then
+          section="BASS"
+          # Remove redundant "bass" word since we're already in BASS section
+          cleaned_instr=$(echo "$main_part" | sed 's/bass//g' | tr -d ' ')
+          # If nothing left after cleaning, use generic "bass"
+          if [[ -z "$cleaned_instr" ]]; then
+            cleaned_instr="bass"
+          fi
+          base_newname="${cueID}_${section}_${cleaned_instr}loop${loop_suffix}${tbr_tbl}"
+        elif [[ "$main_part" =~ (.*)(drum|kit)(.*) ]]; then
+          section="DRUM"
+          # Remove redundant "drum" and "kit" words since we're already in DRUM section
+          cleaned_instr=$(echo "$main_part" | sed 's/drum//g; s/kit//g' | tr -d ' ')
+          # If nothing left after cleaning, use generic "drum"
+          if [[ -z "$cleaned_instr" ]]; then
+            cleaned_instr="drum"
+          fi
+          base_newname="${cueID}_${section}_${cleaned_instr}loop${loop_suffix}${tbr_tbl}"
+        else
+          # Unknown instrument loop - default to DRUM
+          base_newname="${cueID}_DRUM_loop${loop_suffix}${tbr_tbl}"
+        fi
+      fi
+    else
+      # Generic "loop" - default to drum loop
+      loop_suffix=$(echo "$instrument_lc" | sed 's/loop//' | sed 's/  */ /g' | sed 's/^ *//;s/ *$//' | tr -d ' ')
+      base_newname="${cueID}_DRUM_loop${loop_suffix}${tbr_tbl}"
+    fi
   # Effect names: if instrument contains effect keywords, set SEC to '§' and keep original instrument name
-  if [[ "$instrument_lc" =~ (delay|dly|reverb|rev([^a-zA-Z]|$)|verb|chorus|cho|flanger|flg|phaser|phs|distortion|dst|overdrive|od|compressor|cmp|limiter|lim|eq|equalizer|filter|flt|wah|tremolo|trm|vibrato|vib|autopan|pan|fx|fxs|fx1|fx2|fx3|fx4|fx5) ]]; then
+  elif [[ "$instrument_lc" =~ (delay|dly|reverb|rev([^a-zA-Z]|$)|verb|chorus|cho|flanger|flg|phaser|phs|distortion|dst|overdrive|od|compressor|cmp|limiter|lim|eq|equalizer|filter|flt|wah|tremolo|trm|vibrato|vib|autopan|pan|fx([^a-zA-Z]|$)|fxs([^a-zA-Z]|$)|fx1|fx2|fx3|fx4|fx5) ]]; then
     section="§"
     orig_instr_nospaces=$(echo "$instrument" | tr -d ' ')
     base_newname="${cueID}_${section}_${orig_instr_nospaces}${tbr_tbl}"
-  elif [[ "$instrument_lc" =~ synth ]]; then
+  elif [[ "$instrument_lc" =~ (synth|syn([^a-zA-Z]|$)|pad|arp) ]]; then
     section="SYN"
-    orig_instr_nospaces=$(echo "$instrument" | tr -d ' ')
-    base_newname="${cueID}_${section}_${orig_instr_nospaces}${tbr_tbl}"
+    # Remove redundant "synth" and "syn" words since we're already in SYN section
+    cleaned_instr=$(echo "$instrument" | sed 's/[Ss]ynth[[:space:]]*//g; s/[Ss]yn[[:space:]]*//g' | tr -d ' ')
+    # If nothing left after cleaning, use generic "syn"
+    if [[ -z "$cleaned_instr" ]]; then
+      cleaned_instr="syn"
+    fi
+    base_newname="${cueID}_${section}_${cleaned_instr}${tbr_tbl}"
   else
     matched_prefix=""
     matched_prefix_nospace=""
@@ -261,11 +385,11 @@ for f in "$@"; do
   newname="$base_newname.$ext"
   if [[ -e "$dir/$newname" ]]; then
     # Remove any spaces and parentheses from the original instrument for safety
-    orig_instr_clean=$(echo "$instrument" | sed 's/[()]/_/g')
+    orig_instr_clean=$(echo "$instrument" | sed 's/[()]/_/g; s/ /_/g')
     newname="${base_newname}(${orig_instr_clean}).$ext"
     uniquecounter=2
     while [[ -e "$dir/$newname" ]]; do
-      newname="${base_newname}(${orig_instr_clean}_$uniquecounter).$ext"
+      newname="${base_newname}${uniquecounter}(${orig_instr_clean}).$ext"
       ((uniquecounter++))
     done
   fi
